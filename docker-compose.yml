@@ -1,0 +1,117 @@
+services:
+  config-server:
+    build: ./config-server
+    container_name: config-server
+    ports:
+      - "8888:8888"
+
+  eureka-server:
+    build: ./eureka-server
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    depends_on:
+      - config-server
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://localhost:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    depends_on:
+      - zookeeper
+
+  auth-server:
+    build: ./auth-server
+    container_name: auth-server
+    ports:
+      - "8090:8090"
+    environment:
+      - SERVER_PORT=8090
+      - SPRING_APPLICATION_NAME=AUTH-SERVER
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - EUREKA_CLIENT_REGISTER_WITH_EUREKA=true
+      - EUREKA_CLIENT_FETCH_REGISTRY=true
+      - JWT_SECRET=ClaveSecretaParaFirmarTokensJWTBancoDuoc2026EFT
+      - JWT_EXPIRATION=86400000
+    depends_on:
+      - eureka-server
+
+  microservicio-clientes:
+    build: ./microservicio-clientes
+    container_name: microservicio-clientes
+    ports:
+      - "8081:8081"
+    depends_on:
+      - eureka-server
+
+  microservicio-cuentas:
+    build: ./microservicio-cuentas
+    container_name: microservicio-cuentas
+    ports:
+      - "8082:8082"
+    depends_on:
+      - eureka-server
+
+  microservicio-pagos:
+    build: ./microservicio-pagos
+    container_name: microservicio-pagos
+    ports:
+      - "8083:8083"
+    depends_on:
+      - eureka-server
+      - kafka
+
+  bff-web:
+    build: ./bff-web
+    container_name: bff-web
+    ports:
+      - "8084:8084"
+    depends_on:
+      - eureka-server
+      - microservicio-clientes
+
+  bff-mobile:
+    build: ./bff-mobile
+    container_name: bff-mobile
+    ports:
+      - "8085:8085"
+    depends_on:
+      - eureka-server
+      - microservicio-cuentas
+
+  bff-atm:
+    build: ./bff-atm
+    container_name: bff-atm
+    ports:
+      - "8086:8086"
+    depends_on:
+      - eureka-server
+      - microservicio-pagos
+
+  batch-service:
+    build: ./batch-service
+    container_name: batch-service
+    ports:
+      - "8087:8087"
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - eureka-server
+    volumes:
+      - ../data:/data

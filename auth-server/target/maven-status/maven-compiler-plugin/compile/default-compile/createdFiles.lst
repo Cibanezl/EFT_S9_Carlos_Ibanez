@@ -1,0 +1,3 @@
+com\duoc\banco\auth\AuthServerApplication.class
+com\duoc\banco\auth\config\SecurityConfig.class
+com\duoc\banco\auth\controller\AuthController.class

@@ -1,0 +1,3 @@
+com\duoc\banco\pagos\PagosApplication.class
+com\duoc\banco\pagos\model\Pago.class
+com\duoc\banco\pagos\controller\PagoController.class

@@ -1,0 +1,4 @@
+com\duoc\banco\batch\model\Transaccion.class
+com\duoc\banco\batch\BatchApplication.class
+com\duoc\banco\batch\controller\BatchJobController.class
+com\duoc\banco\batch\config\BatchConfig.class

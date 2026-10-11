@@ -1,0 +1,3 @@
+com\duoc\banco\clientes\ClientesApplication.class
+com\duoc\banco\clientes\controller\ClienteController.class
+com\duoc\banco\clientes\model\Cliente.class
